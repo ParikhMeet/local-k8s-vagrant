@@ -1,0 +1,23 @@
+---
+- hosts: slaves
+  become: true
+
+  pre_tasks:
+    - name: Update apt cache if needed.
+      apt: update_cache=yes cache_valid_time=3600
+
+  tasks:
+    - name: Get joining token
+      command: microk8s add-node
+      register: joining_token
+      delegate_to: "{{ groups['master'][0] }}"
+      changed_when: false
+
+    - debug:
+        var: joining_token.stdout_lines[5]
+
+    - name: Join Node
+      command: "{{joining_token.stdout_lines[5]}}"
+      register: joining_result
+      changed_when: "'is already known to dqlite' not in joining_result.stdout"
+      failed_when: "'is already known to dqlite' not in joining_result.stdout"

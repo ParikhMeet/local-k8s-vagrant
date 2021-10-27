@@ -1,0 +1,72 @@
+---
+- hosts: master
+  become: true
+
+  pre_tasks:
+    - name: Update apt cache if needed.
+      apt: update_cache=yes cache_valid_time=3600
+      become: yes
+
+  tasks:
+    - name: Enable Initial Addons
+      command: microk8s enable {{ item.addon }}
+      register: enable_output
+      changed_when: "'is already enabled' not in enable_output.stdout"
+      with_items:
+        - addon: dns
+        - addon: storage
+        - addon: openebs
+
+    - name: Wait for addons to start
+      wait_for:
+        timeout: 180
+      when: enable_output.changed
+
+    - name: Set default Storage Class
+      command: "microk8s.kubectl patch storageclass {{item.class_name}} -p '{\"metadata\": {\"annotations\":{\"storageclass.kubernetes.io/is-default-class\":\"{{item.value}}\"}}}'"
+      register: storage_class_output
+      changed_when: "'no change' not in storage_class_output.stdout"
+      with_items:
+        - {class_name: microk8s-hostpath, value: false}
+        - {class_name: openebs-jiva-csi-default, value: true}
+
+    - name: Enable Addons
+      command: microk8s enable {{ item.addon }}
+      register: enable_output
+      changed_when: "'is already enabled' not in enable_output.stdout"
+      with_items:
+        - addon: helm3
+        - addon: rbac
+        - addon: ingress
+        - addon: portainer
+        - addon: metrics-server
+        - addon: dashboard
+
+    - name: Wait for addons to start
+      wait_for:
+        timeout: 180
+      when: enable_output.changed
+
+    - name: Create .kube directory
+      file:
+        path: /home/vagrant/.kube
+        state: directory
+      become: no
+
+    - name: Copy kube config
+      shell: "microk8s config > /home/vagrant/.kube/config"
+      changed_when: false
+      become: yes
+
+    - name: Install Helm
+      become: yes
+      snap:
+        name: helm
+        state: present
+        classic: yes
+
+    - name: Install Helm Diff
+      become: no
+      kubernetes.core.helm_plugin:
+        state: present
+        plugin_path: https://github.com/databus23/helm-diff

@@ -1,0 +1,47 @@
+---
+- hosts: all
+  become: true
+
+  pre_tasks:
+    - name: Update apt cache if needed.
+      apt: update_cache=yes cache_valid_time=3600
+
+  tasks:
+    - name: Enable iscsid
+      systemd:
+        name: iscsid
+        enabled: true
+        state: started
+
+    - name: Install packages
+      apt:
+        name: "{{ item.name }}"
+        state: present
+      with_items:
+        - {name: 'python3-pip'}
+
+    - name: Install Microk8s
+      snap:
+        name: microk8s
+        state: present
+        classic: true
+
+    - name: adding vagrant user to microk8s group
+      user:
+        name: vagrant
+        groups: microk8s
+        append: true
+
+    - name: Add kubectl alias to .bashrc
+      lineinfile:
+        path=/home/vagrant/.bashrc
+        line="alias kubectl='microk8s.kubectl'"
+        owner=vagrant
+        regexp='^alias kubectl='microk8s.kubectl'$'
+        state=present
+        insertafter=EOF
+
+    - name: Add openshift library to control k8s
+      pip:
+        name: openshift
+        state: present
