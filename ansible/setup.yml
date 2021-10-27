@@ -3,7 +3,7 @@
   become: true
 
   pre_tasks:
-    - name: Update apt cache if needed.
+    - name: Update apt cache if needed
       apt: update_cache=yes cache_valid_time=3600
       become: yes
 
@@ -27,8 +27,8 @@
       register: storage_class_output
       changed_when: "'no change' not in storage_class_output.stdout"
       with_items:
-        - {class_name: microk8s-hostpath, value: false}
-        - {class_name: openebs-jiva-csi-default, value: true}
+        - {class_name: microk8s-hostpath, value: "false"}
+        - {class_name: openebs-jiva-csi-default, value: "true"}
 
     - name: Enable Addons
       command: microk8s enable {{ item.addon }}
