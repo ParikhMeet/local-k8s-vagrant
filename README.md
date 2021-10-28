@@ -3,5 +3,5 @@ Scaffolding for Kubernetes Cluster with multi node for local development and tes
 
 ## Notes
 
--> It uses microk8s variant of Kubernetes.
--> Ansible and vagrant must be preinstalled.
+- It uses microk8s variant of Kubernetes.
+- Ansible and vagrant must be preinstalled.
