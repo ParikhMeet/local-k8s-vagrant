@@ -10,7 +10,7 @@ In the root directory of the project. Execute below commands
 
 - It uses microk8s variant of Kubernetes.
 - Ansible and vagrant must be preinstalled.
-- Ubuntu is used as guest OS.
+- Ubuntu 20.04 is used as guest OS.
 
 ### SSH into VMs
 
