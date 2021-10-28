@@ -8,3 +8,5 @@ ansible-playbook -i ansible/hosts.ini ansible/join-node.yml
 
 echo "Scaffolding"
 ansible-playbook -i ansible/hosts.ini ansible/setup.yml
+
+echo "Enjoy your new environment ☁️"
