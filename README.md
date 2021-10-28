@@ -1,5 +1,5 @@
 # local-k8s-vagrant
-Scaffolding for Kubernetes Cluster with multi node for local development and testing
+Scaffolding for Kubernetes Cluster with multi node architecture for local development and testing. It is a high availibity cluster with openebs jiva as default StorageClass for replicating the persistent data accross all three VMs.
 
 ### Notes
 
